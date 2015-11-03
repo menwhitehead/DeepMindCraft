@@ -1,57 +1,25 @@
 import math
 
-# Display the log messages on the terminal
-DISPLAY_LOG = True
+# The width and height of the viewable game window (always square)
+# For maximum speed, set this to 84 to match the scaled size (no scaling is required!)
+VIEW_WINDOW_SIZE = 256
 
-# The width and height of the game window (always square)
-WINDOW_SIZE = 84
-
-# The number of game frames before calling the agent's getDecision
-DECISION_FREQUENCY = 4
-
-# Number of intermediate features from the autoencoder
-FEATURE_VECTOR_SIZE = 1250
+# The width and height of the image sent to DeepMind
+SCALED_WINDOW_SIZE = 84
 
 # The number of possible actions the agent can perform each step
 TOTAL_NUMBER_ACTIONS = 18
 
-# Number of inputs and outputs in the reinforcement network
-# (Actions are encoded and passed as input!)
-# Single output is the Q value of performing the given action at the given sequence 
-REINFORCEMENT_INPUT_SIZE = FEATURE_VECTOR_SIZE + TOTAL_NUMBER_ACTIONS
-REINFORCEMENT_OUTPUT_SIZE = 1
-
-#OUTPUT_VECTOR_SIZE = 1
+# Host and port number for Lua DeepMind connection
+TCP_HOST = "localhost"
+TCP_PORT = 9999
 
 TICKS_PER_SEC = 6000
-
-# Number of Experiences to train on
-TRAINING_BATCH_SIZE = 512
 
 # Agent's turning speed (per tick)
 AGENT_ROTATION_SPEED = 1.50
 
-# Run each episode for this many game ticks
-MAX_FRAMES_PER_GAME = 300  # equivalent to one minute of normal, 60fps play
 
-# How often (in getDecision calls) to start a minibatch of training
-BATCH_TRAINING_FREQUENCY = 4 * DECISION_FREQUENCY
-
-# Number of iterations of training per minibatch (we think DeepMind is 1)
-BATCH_TRAINING_ITERATIONS = 1
-
-# How often to print the simulation progress to the terminal
-WORLD_COUNTER_DISPLAY_FREQUENCY = 100
-
-REINFORCEMENT_PROTO = 'protos/reinforcement_solver.prototxt'
-REINFORCEMENT_MODEL = 'models/reinforcement/current.caffemodel'
-
-AUTOENCODER_PROTO = 'protos/small_autoencoder_solver.prototxt'
-AUTOENCODER_TEST_PROTO = 'protos/small_autoencoder_tester.prototxt'
-AUTOENCODER_MODEL = 'models/small_autoencoder/current.caffemodel'
-
-CNNPLAYER_SAVE_FILENAME = "cnnplayer.dat"
-REPLAY_MEMORY_FILENAME = "replay.pick"
 
 # Size of sectors used to ease block loading.
 SECTOR_SIZE = 16

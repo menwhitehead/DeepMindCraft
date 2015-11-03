@@ -45,7 +45,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
             self.request.sendall(mess + str(window.player.previous_reward) + "\n")  # send one combined message
 
             action_count += 1
-            if action_count % 100 == 0:
+            if action_count % COUNTER_DISPLAY_FREQUENCY == 0:
                 print("ACTION COUNT: %d" % action_count)
 
 
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     global window
     window = main()
 
-    HOST, PORT = "localhost", 9999
+    HOST, PORT = TCP_HOST, TCP_PORT
 
     # Create the server, binding to localhost on port 9999
     server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)

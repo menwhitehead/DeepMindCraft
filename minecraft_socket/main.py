@@ -405,16 +405,7 @@ class Window(pyglet.window.Window):
             The change in time since the last call.
 
         """
-        self.world_counter += 1
-        if self.world_counter % 1000 == 0:
-            print "FRAME #" + str(self.world_counter)
-
-        
-        #if self.world_counter >= self.max_frames:
-        #    print "Game Over!\tFINAL SCORE:", self.player.total_score
-        #    pyglet.app.exit()
-
-        
+     
         self.model.process_queue()
         sector = sectorize(self.player.position)
         if sector != self.sector:
@@ -427,42 +418,26 @@ class Window(pyglet.window.Window):
         for _ in xrange(m):
             self._update(dt / m)
 
-        #self.player.update()
-        #if self.world_counter % 4 == 0:
-        if self.world_counter % 1 == 0:  
-            PIXEL_BYTE_SIZE = 1  # Use 1 for grayscale, 4 for RGBA
-            
-            # Initialize an array to store the screenshot pixels
-            screenshot = (GLubyte * (PIXEL_BYTE_SIZE * self.width * self.height))(0)
-            
-            # Grab a screenshot
-            # Use GL_RGB for color and GL_LUMINANCE for grayscale!
-            #glReadPixels(0, 0, self.width, self.height, GL_RGB, GL_UNSIGNED_BYTE, screenshot)
-            glReadPixels(0, 0, self.width, self.height, GL_LUMINANCE, GL_UNSIGNED_BYTE, screenshot)
-            
-
-            # If you want to see the agent's view, then you can save a screenshot
-            
-            #im = Image.frombytes(mode="L", size=(WINDOW_SIZE, WINDOW_SIZE), data=screenshot)
-            #im = im.transpose(Image.FLIP_TOP_BOTTOM)
-            #maxsize = (84, 84)
-            #im.thumbnail(maxsize, Image.ANTIALIAS)
-            #imdata = window.current_frame.getdata()
-
-            #im.save('screenshots/test%d.png' % time.time())
-            
-            # Another way to save screenshots...might be slower or faster
-            # pyglet.image.get_buffer_manager().get_color_buffer().save('screenshots/test%d.png' % time.time())
-            
-            #frame = Frame(screenshot)
-            
-            #self.player.getDecision(frame)
-
-            #self.current_frame = imdata
+        PIXEL_BYTE_SIZE = 1  # Use 1 for grayscale, 4 for RGBA
+        
+        # Initialize an array to store the screenshot pixels
+        screenshot = (GLubyte * (PIXEL_BYTE_SIZE * self.width * self.height))(0)
+        
+        # Grab a screenshot
+        # Use GL_RGB for color and GL_LUMINANCE for grayscale!
+        #glReadPixels(0, 0, self.width, self.height, GL_RGB, GL_UNSIGNED_BYTE, screenshot)
+        glReadPixels(0, 0, self.width, self.height, GL_LUMINANCE, GL_UNSIGNED_BYTE, screenshot)
+        
+        # If your viewing window is larger than the size required
+        # by DeepMind, then scale it down before setting the current_frame
+        if VIEW_WINDOW_SIZE > SCALED_WINDOW_SIZE:
+            im = Image.frombytes(mode="L", size=(VIEW_WINDOW_SIZE, VIEW_WINDOW_SIZE), data=screenshot)
+            maxsize = (SCALED_WINDOW_SIZE, SCALED_WINDOW_SIZE)
+            im.thumbnail(maxsize, Image.ANTIALIAS)
+            imdata = im.getdata()
+            self.current_frame = imdata
+        else:
             self.current_frame = screenshot
-
-        #else:
-        #    print self.world_counter, dt
 
 
     def _update(self, dt):
@@ -726,7 +701,7 @@ def opengl_setup():
 
 
 def main():
-    window = Window(width=WINDOW_SIZE, height=WINDOW_SIZE, caption='MindCraft', resizable=True, vsync=False)
+    window = Window(width=VIEW_WINDOW_SIZE, height=VIEW_WINDOW_SIZE, caption='MindCraft', resizable=True, vsync=False)
     
     #p = Player()
     p = DeepMindPlayer()
@@ -754,68 +729,3 @@ def step(window):
 
     
 
-
-class MyTCPHandler(SocketServer.BaseRequestHandler):
-    """
-    The RequestHandler class for our server.
-
-    It is instantiated once per connection to the server, and must
-    override the handle() method to implement communication to the
-    client.
-    """
-
-    def handle(self):
-        import socket
-        action_count = 0
-        
-        self.request.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, True)
-        
-        while True:
-            # self.request is the TCP socket connected to the client
-            incoming_mess = self.request.recv(16).strip()
-            #print "Chosen action:", chosen_action
-
-            if incoming_mess == "RESET":
-                print("\tGAME SCORE: %d" % window.player.total_score)
-                # Reset and start a new game
-                window.reset()
-                step(window)  # update's the window's current_frame
-            else:
-                # perform the last chosen action
-                window.player.doAction(incoming_mess)
-                step(window)  # update's the window's current_frame
-                
-            mess = ''
-            #for i in window.current_frame:
-            for pix in window.current_frame:
-                mess += "%d," % pix
-
-            self.request.sendall(mess + str(window.player.previous_reward) + "\n")  # send one combined message
-
-
-
-
-
-            # mess = ''
-            # for i in window.current_frame:
-            #     mess += str(i) + ","
-            # 
-            # self.request.sendall(mess + str(window.player.previous_reward) + "\n")  # send one combined message
-    
-            action_count += 1
-            if action_count % 100 == 0:
-                print("ACTION COUNT: %d" % action_count)
-
-
-if __name__ == '__main__':
-    global window
-    window = main()
-
-    HOST, PORT = "localhost", 9999
-
-    # Create the server, binding to localhost on port 9999
-    server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)
-
-    # Activate the server; this will keep running until you
-    # interrupt the program with Ctrl-C
-    server.serve_forever()
