@@ -1,7 +1,7 @@
 import SocketServer
 import socket
 from main import *
-
+from game_globals import *
 
 class MyTCPHandler(SocketServer.BaseRequestHandler):
     """

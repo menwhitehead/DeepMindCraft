@@ -1,11 +1,10 @@
 import random
 import os
+from game_globals import *
 
 GROUND = -2
 WALL_HEIGHT = 2
-WORLD_WIDTH = 5  # width in both directions from start
-WORLD_DEPTH = 5  # depth in both directions from start
-NUMBER_TOWERS = 8
+
 
 def saveWorld(locations, filename):
     o = open("maps" + os.sep + filename, 'w')

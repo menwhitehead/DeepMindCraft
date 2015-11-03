@@ -19,7 +19,18 @@ TICKS_PER_SEC = 6000
 # Agent's turning speed (per tick)
 AGENT_ROTATION_SPEED = 1.50
 
+# World generation parameters
+WORLD_WIDTH = 5  # width in both directions from start
+WORLD_DEPTH = 5  # depth in both directions from start
+NUMBER_TOWERS = 8  # number of small towers of dirt to add randomly through world
 
+# How often to print out the total number of frames 
+COUNTER_DISPLAY_FREQUENCY = 100
+
+
+##########################################################################
+# Game specific parameters
+##########################################################################
 
 # Size of sectors used to ease block loading.
 SECTOR_SIZE = 16
