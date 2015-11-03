@@ -13,6 +13,13 @@ Minecraft-like game framework interface for DeepMind DQN
 
 ``` FRAMEWORK="minecraft" ```
 
+* Comment out two lines in Scale.lua:
+
+```
+    --x = image.rgb2y(x)
+    --x = image.scale(x, self.width, self.height, 'bilinear')
+```
+
 * Launch the Python Minecraft-like backend:
 
 ```
