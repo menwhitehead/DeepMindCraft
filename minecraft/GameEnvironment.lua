@@ -17,6 +17,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 -- This file defines the minecraft.GameEnvironment class.
 
+require("socket")
+
 
 -- The GameEnvironment class.
 local gameEnv = torch.class('minecraft.GameEnvironment')
@@ -33,34 +35,29 @@ function gameEnv:__init(_opt)
     --self._screen        = minecraft.GameScreen(_opt.pool_frms, _opt.gpu)
     --self:reset(_opt.env, _opt.env_params, _opt.gpu)
     
-    require("socket")
-    host = host or "localhost"
-    port = port or 9999
-    print(host, port)
-
-    print("Attempting connection to host '" ..host.. "' on port " ..port.. "...")
-    --self.master_sock = self.socket.tcp()
-    --self.connection = assert(self.master_sock.connect(host, port))
-    self.connection = socket.connect(host, port)
-    print("Connected")
+    self.host = "localhost"
+    self.port = 9999
     
-    --print("SET NODELAY")
-    self.connection:setoption("tcp-nodelay", true)
+    -- Count of all legal actions for the agent
+    self.total_number_actions = 8  
     
-    assert(self.connection:send("0"))  -- send a fake first action
-
- 
+    self:connect()
     
     return self
 end
 
 
-function gameEnv:_updateState(frame, reward, terminal, lives)
-    self._state.reward       = reward
-    self._state.terminal     = terminal
-    self._state.prev_lives   = self._state.lives or lives
-    self._state.lives        = lives
-    return self
+-- Connect to the game server
+function gameEnv:connect()
+    print("Attempting connection to host '" .. self.host .. "' on port " .. self.port .. "...")
+    self.connection = socket.connect(self.host, self.port)
+    print("Connected")
+    
+    --Remove any algorithmic delay from the TCP connection
+    self.connection:setoption("tcp-nodelay", true)
+    
+    -- Send a fake first action to the game server
+    assert(self.connection:send("0"))  
 end
 
 
@@ -111,102 +108,32 @@ function gameEnv:getState()
         term = false
     end
             
-    
-    --return self._state.observation, self._state.reward, self._state.terminal
     return screen, reward, term
 end
 
 
-function gameEnv:reset(_env, _params, _gpu)
-    local env
-    local params = _params or {useRGB=true}
-    -- if no game name given use previous name if available
-    if self.game then
-        env = self.game.name
-    end
-    env = _env or env or 'ms_pacman'
-
-    self.game       = minecraft.game(env, params, self.game_path)
-    self._actions   = self:getActions()
-
-    -- start the game
-    if self.verbose > 0 then
-        print('\nPlaying:', self.game.name)
-    end
-
-    self:_resetState()
-    self:_updateState(self:_step(0))
-    self:getState()
-    return self
-end
 
 
-function gameEnv:_resetState()
-    self._screen:clear()
-    self._state = self._state or {}
-    return self
-end
-
-
--- Function plays `action` in the game and return game state.
-function gameEnv:_step(action)
-    assert(action)
-    local x = self.game:play(action)
-    self._screen:paint(x.data)
-    return x.data, x.reward, x.terminal, x.lives
-end
-
-
--- Function plays one random action in the game and return game state.
-function gameEnv:_randomStep()
-    return self:_step(self._actions[torch.random(#self._actions)])
-end
 
 
 function gameEnv:step(action, training)
     self.game_steps = self.game_steps + 1
-    -- accumulate rewards over actrep action repeats
-    --local cumulated_reward = 0
-    --local frame, reward, terminal, lives
-    --for i=1,self._actrep do
-    --    -- Take selected action; ATARI games' actions start with action "0".
-    --    frame, reward, terminal, lives = self:_step(action)
-    --
-    --    -- accumulate instantaneous reward
-    --    cumulated_reward = cumulated_reward + reward
-    --
-    --    -- Loosing a life will trigger a terminal signal in training mode.
-    --    -- We assume that a "life" IS an episode during training, but not during testing
-    --    if training and lives and lives < self._state.lives then
-    --        terminal = true
-    --    end
-    --
-    --    -- game over, no point to repeat current action
-    --    if terminal then break end
-    --end
-    --self:_updateState(frame, cumulated_reward, terminal, lives)
     
     --print("PERFORMED ACTION: " .. action)
     assert(self.connection:send(tostring(action) .. "\n"))
 
-    
     return self:getState()
 end
 
 
---[[ Function advances the emulator state until a new game starts and returns
-this state. The new game may be a different one, in the sense that playing back
-the exact same sequence of actions will result in different outcomes.
-]]
+-- Send a reset message to the game server and then receive the first game frame in getState
 function gameEnv:newGame()
     assert(self.connection:send("RESET\n"))
     return self:getState()
 end
 
 
---[[ Function advances the emulator state until a new (random) game starts and
-returns this state.
-]]
+-- All our games are random, so just start a new game
 function gameEnv:nextRandomGame(k)
     return self:newGame()
 end
@@ -223,7 +150,7 @@ end
 -- Function returns a table with valid actions in the current game.
 function gameEnv:getActions()
     actions = {}
-    for j=1,8 do
+    for j=1,self.total_number_actions do
       actions[j] = j
     end    
     return actions
