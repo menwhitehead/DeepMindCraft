@@ -2,7 +2,7 @@ import math
 
 # The width and height of the viewable game window (always square)
 # For maximum speed, set this to 84 to match the scaled size (no scaling is required!)
-VIEW_WINDOW_SIZE = 256
+VIEW_WINDOW_SIZE = 84
 
 # The width and height of the image sent to DeepMind
 SCALED_WINDOW_SIZE = 84
@@ -25,7 +25,28 @@ WORLD_DEPTH = 5  # depth in both directions from start
 NUMBER_TOWERS = 8  # number of small towers of dirt to add randomly through world
 
 # How often to print out the total number of frames 
-COUNTER_DISPLAY_FREQUENCY = 100
+COUNTER_DISPLAY_FREQUENCY = 1000
+
+
+# Game rules
+
+# Rewards and penalties must fit into one byte!
+# All accumulated rewards also must be non-negative!!!
+
+# Rewards (these are added to reward)
+
+# How much do you get for breaking different blocks?
+BLOCK_BREAK_REWARDS = {
+    "GRASS":100,
+    "STONE":0
+}
+
+# Penalties (these are subtracted from reward)
+SWING_PENALTY = 10
+EXISTENCE_PENALTY = 1
+
+# If you get all the penalties, then you get zero
+STARTING_REWARD = SWING_PENALTY + EXISTENCE_PENALTY
 
 
 ##########################################################################

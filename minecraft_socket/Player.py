@@ -50,14 +50,12 @@ class Player:
         # The current block the user can place. Hit num keys to cycle.
         #self.block = self.inventory[0]
         
-        self.previous_reward = 0.0
-        
-        self.rewards = {
-            "GRASS":1000,
-            "STONE":0
-        }
+        self.previous_reward = 0
         
         self.total_score = 0
+        
+        assert STARTING_REWARD >= EXISTENCE_PENALTY + SWING_PENALTY, "Penalties too high!"
+
 
 
     def setGame(self, game):
@@ -198,11 +196,12 @@ class Player:
                 
                 
     # Perform an action by setting the agent's movement fields to the values from the action object
-    def performAction(self, a):
-        
+    def performAction(self, a):        
         # Initialize a new reward for this current action
+        reward = STARTING_REWARD
+        
         # There is a set cost of 1 for each move
-        reward = -1
+        reward -= EXISTENCE_PENALTY
         
         # Each part of the action might have a cost or reward
         # E.g. Moving might have an energy cost
@@ -217,10 +216,10 @@ class Player:
         # Try to break a block at the crosshairs
         # Returns either the type of block broken/tried to break or None for no blocks in range
         if a.break_block:
-            reward -= 10
+            reward -= SWING_PENALTY
             block_type = self.simulate_click()
             if block_type != "":
-                reward += self.rewards[block_type]
+                reward += BLOCK_BREAK_REWARDS[block_type]
 
         self.previous_reward = reward
         self.total_score += reward

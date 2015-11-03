@@ -420,7 +420,7 @@ class Window(pyglet.window.Window):
         PIXEL_BYTE_SIZE = 1  # Use 1 for grayscale, 4 for RGBA
         
         # Initialize an array to store the screenshot pixels
-        screenshot = (GLubyte * (PIXEL_BYTE_SIZE * self.width * self.height))(0)
+        screenshot = (GLubyte * (PIXEL_BYTE_SIZE * self.width * self.height + 1))(0)
         
         # Grab a screenshot
         # Use GL_RGB for color and GL_LUMINANCE for grayscale!
@@ -431,10 +431,15 @@ class Window(pyglet.window.Window):
         # by DeepMind, then scale it down before setting the current_frame
         if VIEW_WINDOW_SIZE > SCALED_WINDOW_SIZE:
             im = Image.frombytes(mode="L", size=(VIEW_WINDOW_SIZE, VIEW_WINDOW_SIZE), data=screenshot)
+            #im = Image.frombytes(mode="RGB", size=(VIEW_WINDOW_SIZE, VIEW_WINDOW_SIZE), data=screenshot)
             maxsize = (SCALED_WINDOW_SIZE, SCALED_WINDOW_SIZE)
             im.thumbnail(maxsize, Image.ANTIALIAS)
-            imdata = im.getdata()
-            self.current_frame = imdata
+            #imdata = im.getdata()
+            #self.current_frame = imdata
+            
+            #self.request.sendall(window.current_frame.convert("RGBA").tobytes("raw", "RGB"))
+
+            self.current_frame = im.tobytes("raw", "L")
         else:
             self.current_frame = screenshot
 

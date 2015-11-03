@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 -- This file defines the minecraft.GameEnvironment class.
 
 require("socket")
+--require("array")
 
 
 -- The GameEnvironment class.
@@ -35,8 +36,12 @@ function gameEnv:__init(_opt)
     --self._screen        = minecraft.GameScreen(_opt.pool_frms, _opt.gpu)
     --self:reset(_opt.env, _opt.env_params, _opt.gpu)
     
+    self.max_episode_steps = 100
     self.host = "localhost"
     self.port = 9999
+    
+    self.window_size = 84
+    self.total_pixels = self.window_size * self.window_size
     
     -- Count of all legal actions for the agent
     self.total_number_actions = 8  
@@ -63,44 +68,24 @@ end
 
 function gameEnv:getState()
     
-    -- THIS WORKS FOR FAKE TENSOR CREATION
-    --screen = torch.Tensor(3, 84, 84)
-    --screen_storage = screen:storage()
-    --for i=1,screen_storage:size() do -- fill up the Storage
-    --  screen_storage[i] = 0.76
-    --end
-        
-    -- Receive a line of pixel values separated by commas
-    -- last number on the line is the reward for the previous action
-    game_frame = self.connection:receive("*l")
+    game_frame = self.connection:receive(self.total_pixels + 1)  -- one extra byte for the reward
     
-    --print("RECEIVED RESPONSE FROM SERVER:")
-    --print(game_frame)
-    
-
-    -- PROBABLY SHOULD CHECK THE INDEX CALCULATIONS AGAIN
-    reward = 0
-    screen = torch.Tensor(3, 84, 84)
-    screen_storage = screen:storage()
-
-    i = 1
-    for str in string.gmatch(game_frame, "-*%d+") do
-        number = tonumber(str)
-        if i <= 7056 then
-            y = math.floor((i-1)/84)
-            x = (i-1)%84
-            screen_storage[0*7056+y*84+x+1] = number
-            screen_storage[1*7056+y*84+x+1] = number
-            screen_storage[2*7056+y*84+x+1] = number
-        else
-            reward = number
-            --print("REWARD: " .. number)
-        end
-    
-        i = i + 1
+    -- Make a Lua table of the incoming bytes (exclude the last byte becaues it's the reward)
+    t={}
+    for i = 1, string.len(game_frame) - 1 do
+        t[i] = string.byte(string.sub(game_frame, i, i))
     end
     
-    if self.game_steps >= 100 then
+    -- Set the reward value from the last byte
+    reward = string.byte(string.sub(game_frame, self.total_pixels+1, self.total_pixels+1))
+    --print("REWARD RECEIVED:" .. reward)
+
+    -- Create a Tensor using a Storage created from the Lua table
+    -- This is much faster than element-wise assignment
+    stor = torch.Storage(t)
+    screen = torch.Tensor(stor)
+
+    if self.game_steps >= self.max_episode_steps then
         --print("REACHED END OF GAME")
         term = true
         self.game_steps = 0
@@ -110,9 +95,6 @@ function gameEnv:getState()
             
     return screen, reward, term
 end
-
-
-
 
 
 
