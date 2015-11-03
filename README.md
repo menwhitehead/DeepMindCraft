@@ -7,11 +7,11 @@ Minecraft-like game framework interface for DeepMind DQN
 * Clone and install the [DeepMind DQN code](https://github.com/kuz/DeepMind-Atari-Deep-Q-Learner).
 * Copy this project's *minecraft* folder to your DeepMind installation:
 
-` cp -r minecraft YOUR_DEEPMIND_DIR/torch/share/lua/5.1/
+``` cp -r minecraft YOUR_DEEPMIND_DIR/torch/share/lua/5.1/ ```
 
 * Update the FRAMEWORK value in run_cpu and run_gpu:
 
-` FRAMEWORK="minecraft"
+``` FRAMEWORK="minecraft" ```
 
 * Launch the Python Minecraft-like backend:
 
