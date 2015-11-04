@@ -42,8 +42,8 @@ BLOCK_BREAK_REWARDS = {
 }
 
 # Penalties (these are subtracted from reward)
-SWING_PENALTY = 10
-EXISTENCE_PENALTY = 1
+SWING_PENALTY = 0
+EXISTENCE_PENALTY = 0
 
 # If you get all the penalties, then you get zero
 STARTING_REWARD = SWING_PENALTY + EXISTENCE_PENALTY
