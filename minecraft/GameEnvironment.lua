@@ -18,8 +18,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 -- This file defines the minecraft.GameEnvironment class.
 
 require("socket")
---require("array")
-
 
 -- The GameEnvironment class.
 local gameEnv = torch.class('minecraft.GameEnvironment')
@@ -70,8 +68,8 @@ function gameEnv:getState()
     
     game_frame = self.connection:receive(self.total_pixels + 1)  -- one extra byte for the reward
     
-    -- Make a Lua table of the incoming bytes (exclude the last byte becaues it's the reward)
-    t={}
+    -- Make a Lua table of the incoming bytes (exclude the last byte because it's the reward)
+    t={}     
     for i = 1, string.len(game_frame) - 1 do
         t[i] = string.byte(string.sub(game_frame, i, i))
     end
@@ -83,7 +81,7 @@ function gameEnv:getState()
     -- Create a Tensor using a Storage created from the Lua table
     -- This is much faster than element-wise assignment
     stor = torch.Storage(t)
-    screen = torch.Tensor(stor)
+    screen = torch.Tensor(stor, 1, torch.LongStorage{self.window_size, self.window_size})
 
     if self.game_steps >= self.max_episode_steps then
         --print("REACHED END OF GAME")
