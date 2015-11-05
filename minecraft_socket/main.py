@@ -729,7 +729,7 @@ def step(window):
     window.dispatch_events()
     window.dispatch_event('on_draw')
     window.flip()
-    #time.sleep(2)
+    #time.sleep(1)
 
     
 
