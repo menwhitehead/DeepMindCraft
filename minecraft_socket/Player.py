@@ -95,7 +95,7 @@ class Player:
                     op = list(np)
                     op[1] -= dy
                     op[i] += face[i]
-                    if tuple(op) not in self.game.world:
+                    if tuple(op) not in self.game.model.world:
                         continue
                     p[i] -= (d - pad) * face[i]
                     if face == (0, -1, 0):
