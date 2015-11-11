@@ -30,11 +30,10 @@ function gameEnv:__init(_opt)
     self.verbose        = _opt.verbose or 0
     self._actrep        = _opt.actrep or 1
     self._random_starts = _opt.random_starts or 1
-    self.game_steps     = 0
     --self._screen        = minecraft.GameScreen(_opt.pool_frms, _opt.gpu)
     --self:reset(_opt.env, _opt.env_params, _opt.gpu)
     
-    self.max_episode_steps = 100
+    --self.max_episode_steps = 300
     self.host = "localhost"
     self.port = 9999
     
@@ -66,39 +65,39 @@ end
 
 function gameEnv:getState()
     
-    game_frame = self.connection:receive(self.total_pixels + 1)  -- one extra byte for the reward
+    game_frame = self.connection:receive(self.total_pixels + 2)  -- two extra bytes for the reward and termination flag
     
-    -- Make a Lua table of the incoming bytes (exclude the last byte because it's the reward)
+    -- Make a Lua table of the incoming bytes (exclude the last two bytes because reward/terminal)
     t={}     
-    for i = 1, string.len(game_frame) - 1 do
+    for i = 1, string.len(game_frame) - 2 do
         t[i] = string.byte(string.sub(game_frame, i, i))
     end
     
-    -- Set the reward value from the last byte
+    -- Set the reward value from the second to last byte
     reward = string.byte(string.sub(game_frame, self.total_pixels+1, self.total_pixels+1))
     --print("REWARD RECEIVED:" .. reward)
+
+    -- Set the termination flag value from the last byte
+    term_int = string.byte(string.sub(game_frame, self.total_pixels+2, self.total_pixels+2))
+    if term_int > 0 then
+        --print("REACHED END OF GAME")
+        term = true
+    else
+        term = false
+    end
+    --print("TERM RECEIVED:" .. term_int)
 
     -- Create a Tensor using a Storage created from the Lua table
     -- This is much faster than element-wise assignment
     stor = torch.Storage(t)
     screen = torch.Tensor(stor, 1, torch.LongStorage{self.window_size, self.window_size})
-
-    if self.game_steps >= self.max_episode_steps then
-        --print("REACHED END OF GAME")
-        term = true
-        self.game_steps = 0
-    else
-        term = false
-    end
             
     return screen, reward, term
 end
 
 
 
-function gameEnv:step(action, training)
-    self.game_steps = self.game_steps + 1
-    
+function gameEnv:step(action, training)   
     --print("PERFORMED ACTION: " .. action)
     assert(self.connection:send(tostring(action) .. "\n"))
 

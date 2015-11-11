@@ -22,10 +22,10 @@ class DeepMindPlayer(Player):
         self.actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=0.0, forwardback=0, leftright=0))
         
         # Go forward
-        self.actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=0.0, forwardback=1, leftright=0))
+        self.actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=0.0, forwardback=WALKING_SPEED, leftright=0))
         
         # Go backward
-        self.actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=0.0, forwardback=-1, leftright=0))  
+        self.actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=0.0, forwardback=-WALKING_SPEED, leftright=0))  
         
         # Rotate right
         self.actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=AGENT_ROTATION_SPEED, forwardback=0, leftright=0))
@@ -73,10 +73,10 @@ class DeepMindPlayer(Player):
         #self.actions.append(Action.Action(True, updown_rot=0.0, leftright_rot=-AGENT_ROTATION_SPEED, forwardback=-1, leftright=0))
 
         # Go right
-        self.actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=0.0, forwardback=0, leftright=1))
+        self.actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=0.0, forwardback=0, leftright=WALKING_SPEED))
         
         # Go left
-        self.actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=0.0, forwardback=0, leftright=-1))
+        self.actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=0.0, forwardback=0, leftright=-WALKING_SPEED))
 
 
 

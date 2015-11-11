@@ -28,7 +28,9 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
                 step(window)  # update's the window's current_frame
                 
             # Set the last byte to be the previous reward
-            window.current_frame[-1] = window.player.previous_reward
+            window.current_frame[-2] = window.player.previous_reward
+            window.current_frame[-1] = window.game_over
+
             
             # Send the bytes of the current frame
             self.request.sendall(window.current_frame)

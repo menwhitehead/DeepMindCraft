@@ -95,7 +95,7 @@ class Player:
                     op = list(np)
                     op[1] -= dy
                     op[i] += face[i]
-                    if tuple(op) not in self.game.model.world:
+                    if tuple(op) not in self.game.world:
                         continue
                     p[i] -= (d - pad) * face[i]
                     if face == (0, -1, 0):
@@ -202,8 +202,6 @@ class Player:
         
         # There is a set cost of 1 for each move
         reward -= EXISTENCE_PENALTY
-        
-        self.jump = True
         
         # Each part of the action might have a cost or reward
         # E.g. Moving might have an energy cost

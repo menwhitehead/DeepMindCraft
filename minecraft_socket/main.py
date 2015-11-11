@@ -357,6 +357,11 @@ class Window(pyglet.window.Window):
 
         self.current_frame = [[.76, .67],[.88, .91]]
         
+        # Int flag to indicate the end of the game
+        # This is set to 1 whenever the max frames are reached
+        # or the player dies
+        self.game_over = 0
+        
     def reset(self):
         # Setup grayscale conversion color component scaling values
         glPixelTransferf(GL_RED_SCALE, 1)
@@ -368,6 +373,7 @@ class Window(pyglet.window.Window):
         self.exclusive = False
         self.sector = None
         self.reticle = None
+        self.game_over = 0
         self.player = DeepMindPlayer()
         self.player.setGame(self)
         world_file = "test%d.txt" % random.randrange(10)
@@ -405,6 +411,10 @@ class Window(pyglet.window.Window):
 
         """
      
+        self.world_counter += 1
+        if self.world_counter >= MAXIMUM_GAME_FRAMES:
+            self.game_over = 1
+     
         self.model.process_queue()
         sector = sectorize(self.player.position)
         if sector != self.sector:
@@ -420,7 +430,8 @@ class Window(pyglet.window.Window):
         PIXEL_BYTE_SIZE = 1  # Use 1 for grayscale, 4 for RGBA
         
         # Initialize an array to store the screenshot pixels
-        screenshot = (GLubyte * (PIXEL_BYTE_SIZE * self.width * self.height + 1))(0)
+        # Add two extra bytes on the end: one for reward and one for terminal flag
+        screenshot = (GLubyte * (PIXEL_BYTE_SIZE * self.width * self.height + 2))(0)
         
         # Grab a screenshot
         # Use GL_RGB for color and GL_LUMINANCE for grayscale!
@@ -440,6 +451,8 @@ class Window(pyglet.window.Window):
             #self.request.sendall(window.current_frame.convert("RGBA").tobytes("raw", "RGB"))
 
             self.current_frame = im.tobytes("raw", "L")
+            print("********** USING DIFFERENT SIZE VIEW WINDOW DOESN'T CURRENTLY WORK!")
+            sys.exit(1)
         else:
             self.current_frame = screenshot
 
@@ -729,7 +742,7 @@ def step(window):
     window.dispatch_events()
     window.dispatch_event('on_draw')
     window.flip()
-    #time.sleep(1)
+    #time.sleep(2)
 
     
 

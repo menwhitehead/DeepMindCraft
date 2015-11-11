@@ -16,8 +16,13 @@ TCP_PORT = 9999
 
 TICKS_PER_SEC = 6000
 
+
+# Total number of game frames per episode
+MAXIMUM_GAME_FRAMES = 300
+
 # Agent's turning speed (per tick)
 AGENT_ROTATION_SPEED = 1.50
+WALKING_SPEED = 1.0
 
 # World generation parameters
 WORLD_WIDTH = 5  # width in both directions from start
@@ -56,7 +61,6 @@ STARTING_REWARD = SWING_PENALTY + EXISTENCE_PENALTY
 # Size of sectors used to ease block loading.
 SECTOR_SIZE = 16
 
-WALKING_SPEED = 5
 FLYING_SPEED = 15
 
 GRAVITY = 20.0
