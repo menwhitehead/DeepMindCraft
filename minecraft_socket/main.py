@@ -353,7 +353,7 @@ class Window(pyglet.window.Window):
         # TICKS_PER_SEC. This is the main game event loop.
         #pyglet.clock.set_fps_limit(1000)
         #pyglet.clock.schedule_interval(self.update, 1.0 / TICKS_PER_SEC)
-        pyglet.clock.schedule(self.update)
+        #pyglet.clock.schedule(self.update)
 
         self.current_frame = [[.76, .67],[.88, .91]]
         
