@@ -3,8 +3,8 @@ import pyglet
 import math
 import random
 
-from game_globals import *
 import Action
+from game_config import *
 
 class Player:
 
@@ -189,8 +189,10 @@ class Player:
                 #print "REMOVING BLOCK"
                 self.game.model.remove_block(block)
                 return "GRASS"
-            if texture == STONE:
+            elif texture == STONE:
                 return "STONE"
+            elif texture == BRICK:
+                return "BRICK"
         else:
             return ""
                 

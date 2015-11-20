@@ -11,12 +11,11 @@ from pyglet.window import key, mouse
 
 from PIL import Image
 
+from game_globals import *
+from game_config import *
+
 from Player import Player
 from DeepMindPlayer import DeepMindPlayer
-
-from game_globals import *
-from generateWorld import *
-
 
 class Model(object):
 
@@ -59,6 +58,8 @@ class Model(object):
                 self.add_block((x, y, z), GRASS, immediate=False)
             elif kind == "STONE":
                 self.add_block((x, y, z), STONE, immediate=False)
+            elif kind == "BRICK":
+                self.add_block((x, y, z), BRICK, immediate=False)
             #self.add_block((x, y - 3, z), STONE, immediate=False)
                 
         f.close()

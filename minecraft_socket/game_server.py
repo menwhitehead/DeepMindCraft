@@ -1,7 +1,7 @@
 import SocketServer
 import socket
 from main import *
-from game_globals import *
+from game_config import *
 
 class MyTCPHandler(SocketServer.BaseRequestHandler):
 
@@ -42,6 +42,10 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 
 if __name__ == '__main__':
     global window
+
+    # Verify the necessary files conform to the configurations in this file
+    verify_files()
+    
     window = main()
 
     HOST, PORT = TCP_HOST, TCP_PORT
