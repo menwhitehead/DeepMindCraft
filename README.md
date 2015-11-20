@@ -20,6 +20,10 @@ Minecraft-like game framework interface for DeepMind DQN
     --x = image.scale(x, self.width, self.height, 'bilinear')
 ```
 
+* Install luasocket:
+
+``` <PATH>/DeepMind-Atari-Deep-Q-Learner/torch/bin/luarocks install luasocket ```
+
 * Launch the Python Minecraft-like backend:
 
 ```
