@@ -197,7 +197,7 @@ def generateGameWorld(filename):
 # Verify the necessary files conform to the configurations in this file
 def verify_files():
     GAME_ENVIRONMENT_TEMPLATE = "templates/GameEnvironment_template"
-    GAME_ENVIRONMENT_LOCATION = "../DeepMind-Atari-Deep-Q-Learner/torch/share/lua/5.1/minecraft/GameEnvironment.lua"
+    GAME_ENVIRONMENT_LOCATION = "../../DeepMind-Atari-Deep-Q-Learner/torch/share/lua/5.1/minecraft/GameEnvironment.lua"
     GAME_ENVIRONMENT_REPLACEMENTS = {"ACTION_NUMBER" :len(GAME_ACTIONS)}
 
     template = open(GAME_ENVIRONMENT_TEMPLATE, "r")
