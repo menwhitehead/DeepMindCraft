@@ -21,7 +21,7 @@ TOTAL_NUMBER_ACTIONS = 18
 
 # Host and port number for Lua DeepMind connection
 TCP_HOST = "localhost"
-TCP_PORT = 9999
+TCP_PORT = 9988
 
 TICKS_PER_SEC = 6000
 
@@ -197,37 +197,31 @@ def generateGameWorld(filename):
 # Verify the necessary files conform to the configurations in this file
 def verify_files():
     GAME_ENVIRONMENT_TEMPLATE = "templates/GameEnvironment_template"
-    GAME_ENVIRONMENT_LOCATION = "../../DeepMind-Atari-Deep-Q-Learner/torch/share/lua/5.1/minecraft/GameEnvironment.lua"
-    GAME_ENVIRONMENT_REPLACEMENTS = {"ACTION_NUMBER" :len(GAME_ACTIONS)}
+    GAME_ENVIRONMENT_PATH = "../../DeepMind-Atari-Deep-Q-Learner/torch/share/lua/5.1/minecraft/GameEnvironment.lua"
+    TRAIN_AGENT_TEMPLATE = "templates/train_agent_template"
+    TRAIN_AGENT_PATH = "../../DeepMind-Atari-Deep-Q-Learner/dqn/train_agent.lua"
+    TRAIN_AGENT_REPLACEMENTS = {"HOST" : TCP_HOST, "PORT" : TCP_PORT, "ACTION_NUMBER" : len(GAME_ACTIONS)}
+    replace_file(GAME_ENVIRONMENT_TEMPLATE, GAME_ENVIRONMENT_PATH)
+    replace_file(TRAIN_AGENT_TEMPLATE, TRAIN_AGENT_PATH, TRAIN_AGENT_REPLACEMENTS)
 
-    template = open(GAME_ENVIRONMENT_TEMPLATE, "r")
-    compare_file = open(GAME_ENVIRONMENT_LOCATION, "r")
-    filled_template = Template(template.read()).substitute(GAME_ENVIRONMENT_REPLACEMENTS)
+# Replace files if necessary
+def replace_file(file_template, file_path, template_replacements = None):
+    template = open(file_template, "r")
+    compare_file = open(file_path, "r")
+    filled_template = template.read()
+    if template_replacements != None:
+        filled_template = Template(filled_template).substitute(template_replacements)
     compare_contents = compare_file.read()
     if compare_contents != filled_template:
-        print("WARNING: The current GameEnvironment.lua file does not match the current configurations...\n")
-        option = raw_input("Would you like to replace the current GameEnvironment.lua file with one that matches the current configurations? [Y/N]: ")
+        print("WARNING: The current {0} file does not match the current configurations...\n".format(file_path))
+        option = raw_input("Would you like to replace the current {0} file with one that matches the current configurations? [Y/N]: ".format(file_path))
         if option.upper() == "Y" or option.upper() == "YES":
-            print("Replacing current GameEnvironment.lua file...\n")
-            write_script(GAME_ENVIRONMENT_TEMPLATE, GAME_ENVIRONMENT_LOCATION, GAME_ENVIRONMENT_REPLACEMENTS)
+            print("Replacing current {0} file...\n".format(file_path))
+            write_script(filled_template, file_path)
     template.close()
     compare_file.close()
-    
         
-def write_script(template_name, new_file_name, replacements, executable = 0):
-    template = open(template_name, "r")
+def write_script(filled_template, new_file_name):
     new_file = open(new_file_name, "w")
-    filled_template = Template(template.read()).substitute(replacements)
     new_file.write(filled_template)
-    template.close()
     new_file.close()
-    st = os.stat(new_file_name)
-    if executable:
-        os.chmod(new_file_name, st.st_mode | stat.S_IEXEC)
-
-if __name__ == "__main__":
-    GAME_ENVIRONMENT_TEMPLATE = "templates/GameEnvironment_template"
-    GAME_ENVIRONMENT_LOCATION = "../DeepMind-Atari-Deep-Q-Learner/torch/share/lua/5.1/minecraft/GameEnvironment.lua"
-    GAME_ENVIRONMENT_REPLACEMENTS = {"ACTION_NUMBER" :len(GAME_ACTIONS)}
-    
-    write_script(GAME_ENVIRONMENT_TEMPLATE, GAME_ENVIRONMENT_LOCATION, GAME_ENVIRONMENT_REPLACEMENTS)

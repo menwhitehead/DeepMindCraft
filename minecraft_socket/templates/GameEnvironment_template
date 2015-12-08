@@ -34,14 +34,14 @@ function gameEnv:__init(_opt)
     --self:reset(_opt.env, _opt.env_params, _opt.gpu)
     
     --self.max_episode_steps = 300
-    self.host = "localhost"
-    self.port = 9999
+    self.host = _opt.host
+    self.port = _opt.port
     
     self.window_size = 84
     self.total_pixels = self.window_size * self.window_size
     
     -- Count of all legal actions for the agent
-    self.total_number_actions = $ACTION_NUMBER
+	self.total_number_actions = _opt.action_number
     
     self:connect()
     
