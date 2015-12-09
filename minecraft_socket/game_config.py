@@ -16,9 +16,6 @@ VIEW_WINDOW_SIZE = 84
 # The width and height of the image sent to DeepMind
 SCALED_WINDOW_SIZE = 84
 
-# The number of possible actions the agent can perform each step
-TOTAL_NUMBER_ACTIONS = 18
-
 # Host and port number for Lua DeepMind connection
 TCP_HOST = "localhost"
 TCP_PORT = 9988
@@ -41,6 +38,24 @@ MAX_BLOCK_HEIGHT = 5 # The maximum height of blocks placed in the world
 
 # How often to print out the total number of frames 
 COUNTER_DISPLAY_FREQUENCY = 1000
+
+# GPU Training, -1 is CPU and 0 is GPU
+GPU = 0
+
+###################################
+# Directory Structure Information #
+###################################
+
+# Experiments Directory Information
+EXPERIMENT_NAME = "test" # Current Experiment Name
+EXPERIMENT_DIRECTORY_PATH = "/home/alan/Capstone/DeepMindCraft_Experiments/"
+EXPERIMENT_WRITE_LOCATION = EXPERIMENT_DIRECTORY_PATH + EXPERIMENT_NAME # Experiment write location
+
+# Qlua directory path
+QLUA_DIRECTORY = "/home/alan/Capstone/DeepMind-Atari-Deep-Q-Learner/torch/bin/qlua"
+
+# DQN directory path
+DQN_DIRECTORY = "/home/alan/Capstone/DeepMind-Atari-Deep-Q-Learner/dqn"
 
 ##############
 # Game rules #
@@ -189,39 +204,59 @@ def generateGameWorld(filename):
 # Write Scripts #
 #################
 # These functions write the custom lua scripts according to the specifications in this config file 
-#TODO: Check run_cpu/run_gpu to see if it's necessary to script them
-#TODO: Make this run automatically?
-#TODO: Figure out why the game runs with incorrect number of actions in GameEnvironment.lua
 #TODO: Check and warn if configs don't match
 
+# Verify the necessary directories exist and conform to the configurations in this file
+def verify_directories():
+    if os.path.isdir(EXPERIMENT_WRITE_LOCATION):
+        print("WARNING: The current directory {0} exists!...\n".format(EXPERIMENT_WRITE_LOCATION))
+        option = raw_input("Would you like to continue and possibly overwrite files? [Y/N]: ".format(EXPERIMENT_WRITE_LOCATION))
+        if option.upper() == "N" or option.upper() == "NO":
+            exit(0)
+    else:
+        print("WARNING: The current directory {0} does not exist as specified in the current configurations...\n".format(EXPERIMENT_WRITE_LOCATION))
+        option = raw_input("Would you like to create the directory {0} (if no then you cannot continue)? [Y/N]: ".format(EXPERIMENT_WRITE_LOCATION))
+        if option.upper() == "Y" or option.upper() == "YES":
+            print("Creating directory {0}...\n".format(EXPERIMENT_WRITE_LOCATION))
+            os.makedirs(EXPERIMENT_WRITE_LOCATION)
+    
 # Verify the necessary files conform to the configurations in this file
 def verify_files():
+    RUN_TEMPLATE = "templates/run_template"
+    RUN_FILE_PATH = EXPERIMENT_WRITE_LOCATION + "/run_" + EXPERIMENT_NAME
+    RUN_FILE_REPLACEMENTS = {"EXPERIMENTS_DIRECTORY" : EXPERIMENT_WRITE_LOCATION + "/", "HOST" : TCP_HOST, "PORT" : TCP_PORT, "ACTION_NUMBER" : len(GAME_ACTIONS),
+                             "GPU" : GPU, "QLUA_DIRECTORY" : QLUA_DIRECTORY, "DQN_DIRECTORY" : DQN_DIRECTORY}
     GAME_ENVIRONMENT_TEMPLATE = "templates/GameEnvironment_template"
     GAME_ENVIRONMENT_PATH = "../../DeepMind-Atari-Deep-Q-Learner/torch/share/lua/5.1/minecraft/GameEnvironment.lua"
     TRAIN_AGENT_TEMPLATE = "templates/train_agent_template"
     TRAIN_AGENT_PATH = "../../DeepMind-Atari-Deep-Q-Learner/dqn/train_agent.lua"
-    TRAIN_AGENT_REPLACEMENTS = {"HOST" : TCP_HOST, "PORT" : TCP_PORT, "ACTION_NUMBER" : len(GAME_ACTIONS)}
+    replace_file(RUN_TEMPLATE, RUN_FILE_PATH, RUN_FILE_REPLACEMENTS, executable = True)
     replace_file(GAME_ENVIRONMENT_TEMPLATE, GAME_ENVIRONMENT_PATH)
-    replace_file(TRAIN_AGENT_TEMPLATE, TRAIN_AGENT_PATH, TRAIN_AGENT_REPLACEMENTS)
+    replace_file(TRAIN_AGENT_TEMPLATE, TRAIN_AGENT_PATH)
 
 # Replace files if necessary
-def replace_file(file_template, file_path, template_replacements = None):
+def replace_file(file_template, file_path, template_replacements = None, executable = False):
     template = open(file_template, "r")
-    compare_file = open(file_path, "r")
     filled_template = template.read()
+    compare_contents = None
+    if os.path.exists(file_path):
+        compare_file = open(file_path, "r")
+        compare_contents = compare_file.read()
+        compare_file.close()
     if template_replacements != None:
-        filled_template = Template(filled_template).substitute(template_replacements)
-    compare_contents = compare_file.read()
+        filled_template = Template(filled_template).safe_substitute(template_replacements)
     if compare_contents != filled_template:
         print("WARNING: The current {0} file does not match the current configurations...\n".format(file_path))
         option = raw_input("Would you like to replace the current {0} file with one that matches the current configurations? [Y/N]: ".format(file_path))
         if option.upper() == "Y" or option.upper() == "YES":
             print("Replacing current {0} file...\n".format(file_path))
-            write_script(filled_template, file_path)
+            write_script(filled_template, file_path, executable)
     template.close()
-    compare_file.close()
         
-def write_script(filled_template, new_file_name):
+def write_script(filled_template, new_file_name, executable = False):
     new_file = open(new_file_name, "w")
     new_file.write(filled_template)
     new_file.close()
+    st = os.stat(new_file_name)
+    if executable:
+        os.chmod(new_file_name, st.st_mode | stat.S_IEXEC)

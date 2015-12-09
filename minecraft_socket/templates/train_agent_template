@@ -43,9 +43,9 @@ cmd:option('-verbose', 2,
            'the higher the level, the more information is printed to screen')
 cmd:option('-threads', 1, 'number of BLAS threads')
 cmd:option('-gpu', -1, 'gpu flag')
-cmd:option('-host', '$HOST', 'host to connect to inorder to run training')
-cmd:option('-port', $PORT, 'port number to run training')
-cmd:option('-action_number', $ACTION_NUMBER, 'the number of actions the bot has available')
+cmd:option('-host', '', 'host to connect to inorder to run training')
+cmd:option('-port', 9999, 'port number to run training')
+cmd:option('-action_number', 0, 'the number of actions the bot has available')
 cmd:text()
 
 local opt = cmd:parse(arg)

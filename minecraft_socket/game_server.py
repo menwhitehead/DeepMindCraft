@@ -43,6 +43,8 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 if __name__ == '__main__':
     global window
 
+    # Verify the necessary directories exist and conform to the configurations in this file
+    verify_directories()
     # Verify the necessary files conform to the configurations in this file
     verify_files()
     
