@@ -44,5 +44,3 @@ python game_server.py
 * Simple Block-Breaking Bot:
 
 ![Break those blocks!](gifs/simple_block_breaking.gif?raw=true "Block Breaker")
-
-TEST!
